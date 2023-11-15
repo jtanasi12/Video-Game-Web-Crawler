@@ -66,7 +66,7 @@ const scrapPages = async (pageNumber) => {
         // This ensures for one page to finish scrapping, before we advanced to the next page 
         // Then once its done, we advance the page number and continue to the next page/calling the function over
         if (pageNumber < numberOfPages) {
-         //   await delay(1000); // Introduce a 1-second delay
+            await delay(1000); // Introduce a 1-second delay
             await scrapPages(pageNumber + 1);
         }
     } catch (error) {
