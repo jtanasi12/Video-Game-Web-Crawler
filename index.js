@@ -39,7 +39,7 @@ const app = express();
 
 const scrapPages = async (pageNumber) => {
     try {
-        // Perform an HTTP get request and dynamically append the page number
+        // Perform an HTTP get request and dynamically apphend the page number
         const response = await axios.get(`${gamespotTopRating + userFilter}&page=${pageNumber}`);
 
         // Axios automatically converts the data into JSON
@@ -49,12 +49,15 @@ const scrapPages = async (pageNumber) => {
         const cheerioParse = cheerio.load(html);
 
         // Search for .card-item__link classes and grab the text and URL
-        cheerioParse('.card-item__link').each((index, element) => {
-            const title = cheerioParse(element).text();
-            const url = cheerioParse(element).attr('href');
+        cheerioParse('.card-item').each((index, element) => {
+            const title = cheerioParse(element).find('.card-item__link').text();
+            const url = cheerioParse(element).find('.card-item__link').attr('href');
+            const image = cheerioParse(element).find('.width-100').attr('src');
 
-            gameList.push({ title, url });
+            gameList.push({ title, url, image });
         });
+     
+        
 
         // Tell us what page we are scraping from
         console.log(`Data scraped from page ${pageNumber}`);
@@ -63,7 +66,7 @@ const scrapPages = async (pageNumber) => {
         // This ensures for one page to finish scrapping, before we advanced to the next page 
         // Then once its done, we advance the page number and continue to the next page/calling the function over
         if (pageNumber < numberOfPages) {
-            await delay(1000); // Introduce a 1-second delay
+         //   await delay(1000); // Introduce a 1-second delay
             await scrapPages(pageNumber + 1);
         }
     } catch (error) {
@@ -81,7 +84,7 @@ const scrapRating = async (videoGame) => {
 
         const rating = cheerioParse('.review-ring-score__score').text();
 
-        console.log(`Rating for ${videoGame.title}: ${rating}`);
+        console.log(`Rating for ${videoGame.title}: ${rating} Image: ${videoGame.image}`);
 
         await delay(1000); // Introduce a 1-second delay
     } catch (error) {
