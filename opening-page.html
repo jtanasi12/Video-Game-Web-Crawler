@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Bootstrap demo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link href="styles/opening.css" rel="stylesheet">
+</head>
+<body>
+<div class="container-fluid text-center" id="top-div">
+    <div class="row">
+        <div class="col">
+            <h1 class="display-3">Central Game Crawler</h1>
+            <h5 class="display-6 mb-5 fw-bolder">Know your games!</h5>
+        </div>
+    </div>
+
+    <div class="row mb-5 pb-2">
+        <div class="col-10 text-center mx-auto mb-2">
+            <div class="input-group">
+
+                <input type="text" aria-label="search-term" class="form-control"
+                       placeholder="Search by genre, studio or title e.g: Action" name="search-term">
+                <input type="text" aria-label="city" class="form-control" placeholder="Enter a year e.g: 2014"
+                       name="city">
+                <button type="button" class="btn btn-danger" id="search-button">Search</button>
+            </div>
+
+        </div>
+        <div class="col-10 alert alert-danger justify-content-start mx-auto mb-2" id="search-term-msg">
+            <p class="justify-content-start">Search term cannot be empty.Please enter a search term.</p>
+        </div>
+        <div class="col-10 alert alert-danger justify-content-start mx-auto mb-2" id="city-msg">
+            <p class="justify-content-start">City cannot be empty.Please enter a city.</p>
+        </div>
+
+    </div>
+
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <div class="container h-80" id="photo-div">
+                <div class="card m-3 p-3 text-center shadow-rounded">
+                    <div class="card-header">
+                        Featured Genres
+                    </div>
+                    <div id="carouselExampleCaptions" class="carousel slide m-3 p-3" data-bs-ride="carousel">
+                        <div class="carousel-indicators">
+                            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="0"
+                                    class="active"
+                                    aria-current="true" aria-label="Slide 1"></button>
+                            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="1"
+                                    aria-label="Slide 2"></button>
+                            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="2"
+                                    aria-label="Slide 3"></button>
+                            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="3"
+                                    aria-label="Slide 4"></button>
+                            <button type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide-to="4"
+                                    aria-label="Slide 5"></button>
+                        </div>
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="images/fps.jpg" class="d-block img-fluid mx-auto mb-3" alt="fps">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5>First-Person Shooter</h5>
+                                    <p>When you game like all guns blazing</p>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/rpg.png" class="d-block img-fluid mx-auto mb-3" alt="rpg">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5>RPG</h5>
+                                    <p>Live alternate lives to your fantasy</p>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/sport.jpeg" class="d-block img-fluid mx-auto mb-3" alt="sports">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5>Sports</h5>
+                                    <p>When sports is what you breathe</p>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/action.jpeg" class="d-block img-fluid mx-auto mb-3" alt="sports">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5 >Action</h5>
+                                    <p>Let's walk the talk</p>
+                                </div>
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/adventure.jpeg" class="d-block img-fluid mx-auto mb-3" alt="sports">
+                                <div class="carousel-caption d-none d-md-block">
+                                    <h5>Adventure</h5>
+                                    <p>Beyond the boundary </p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions"
+                                data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleCaptions"
+                                data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                    <div class="card-footer text-body-secondary">
+                        Powered by &copy; Gamespot
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="js/html.js">
+
+</script>
+</body>
+</html>
