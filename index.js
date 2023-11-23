@@ -3,12 +3,13 @@
 const axios = require('axios');
 const puppeteer = require('puppeteer');
 const express = require('express');
-
+const fs = require('fs');
 
 
 // ************ Variable Declarations ************ 
 const baseUrl = 'https://www.gamestop.com/video-games';
 const platform = '/xbox-one';
+const genre = '/racing';
 const filter = '?srule=price-high-to-low';
 let   pageNumber = 1; // Default to 0
 const userAgent = 'CS560 Gamestop Project'; // This is considered polite 
@@ -31,7 +32,11 @@ const scrapPages = async (pagePosition) => {
 
     //concanate all the appropriate urls together 
    // https://www.gamestop.com/video-games/xbox-one?srule=price-high-to-low&start=0&sz=20
-    const url = `${baseUrl}${platform}${filter}&start=${pagePosition}&sz=20`;
+
+    const url = `${baseUrl}${platform}${genre}${filter}&start=${pagePosition}&sz=20`;
+
+    console.log(`${baseUrl}${platform}${genre}${filter}&start=${pagePosition}&sz=20`);
+
 
     /*  - Puputeer is used because GameStop dynamically loads HTML via javascript meaning it's not static 
          It creates a new instance of the browser we are scraping, so that the browser is in a  clean slate with no previous cookies. */
@@ -39,7 +44,7 @@ const scrapPages = async (pagePosition) => {
     let browser; 
     
     try {
-
+      https://www.gamestop.com/video-games/xbox-one/action?srule=price-high-to-low&start=0&sz=20
 
       browser = await puppeteer.launch({ headless: 'new' }); // Create a new instance of browser/non-visible
       const page = await browser.newPage(); // Loads the new browser 
@@ -226,6 +231,8 @@ scrapPages(0)
         await scrapGameUrl(gameList[index]);
     }
 
+    saveArrayToFile(gameList);
+
      // <-- For testing purposes making sure the objects have - title, url, priceList, imageUrl, and esrbValue 
    // ********************************  iterateGameList(); ******************************** 
      // 
@@ -243,3 +250,25 @@ scrapPages(0)
         console.log(gameList[index]);
     }
   }
+
+
+
+  async function saveArrayToFile(gameList) {
+      
+    // Convert the array to a string (you can use JSON.stringify for more complex objects)
+    const dataString = gameList.map(obj => JSON.stringify(obj)).join('\n');
+
+    // Specify the file path
+    const filePath = 'genres/racing.txt';
+
+    // Write the data to the file
+    fs.writeFile(filePath, dataString, (err) => {
+      if (err) {
+        console.error('Error saving file:', err);
+      } else {
+        console.log('File saved successfully.');
+      }
+    });
+}
+
+
