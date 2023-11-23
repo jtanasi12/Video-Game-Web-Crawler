@@ -1,108 +1,245 @@
-const PORT = 8000;
 
 // Requirements
 const axios = require('axios');
-const cheerio = require('cheerio');
+const puppeteer = require('puppeteer');
 const express = require('express');
 
 
-// This is considered polite so that we don't get mistake as a Denial of Service Attack
+
+// ************ Variable Declarations ************ 
+const baseUrl = 'https://www.gamestop.com/video-games';
+const platform = '/xbox-one';
+const filter = '?srule=price-high-to-low';
+let   pageNumber = 1; // Default to 0
+const userAgent = 'CS560 Gamestop Project'; // This is considered polite 
+const PORT = 8000;
+const gameList = []; // A list of videgame objects 
+const gamesPerPage = 20;
+const pagePositionTotal = 100; // The number of pages we want to traverse in GameSpot. 100 equals 5 pages with gamestops metrics
+
+// This is considered polite so that we don't get mistaken as a Denial of Service Attack
+// We can set delays while we scrap 
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// This is considered to be polite to include our scraper name
-const axiosConfig = {
-    headers: {
-        'User-Agent': 'CS 560 Gamespot Web Scraper',
-    },
-};
-// Url with the top rating 
-const gamespotTopRating = 'https://www.gamespot.com/games/reviews/?sort=gs_score_desc';
-
-// Grabs the user filter and will apphend it so that the user can choose what genre they want to scrap
-// This is an example using action 
-const userFilter = '&review_filter_type%5Bplatform%5D=&review_filter_type%5Bgenre%5D=4&review_filter_type%5BtimeFrame%5D=&review_filter_type%5BstartDate%5D=&review_filter_type%5BendDate%5D=&review_filter_type%5BminRating%5D=&review_filter_type%5Btheme%5D=&review_filter_type%5Bregion%5D=&___review_filter_type%5Bpublishers%5D=&___review_filter_type%5Bdevelopers%5D=&review_filter_type%5Bletter%5D=';
-
-
-// Base URL
-const gamespotBase = 'https://www.gamespot.com';
-
-const numberOfPages = 5; // The number of pages we want to traverse in GameSpot
-
-// Store the items into an array
-// This will hold objects with two attributes: title & url
-const gameList = [];
+// ***********************************************
 
 // Middleware
 const app = express();
 
 // ***** SCRAP THE VIDEOGAMES GATHERING LINKS FROM THE PAGES *****
 
-const scrapPages = async (pageNumber) => {
+const scrapPages = async (pagePosition) => {
+
+    //concanate all the appropriate urls together 
+   // https://www.gamestop.com/video-games/xbox-one?srule=price-high-to-low&start=0&sz=20
+    const url = `${baseUrl}${platform}${filter}&start=${pagePosition}&sz=20`;
+
+    /*  - Puputeer is used because GameStop dynamically loads HTML via javascript meaning it's not static 
+         It creates a new instance of the browser we are scraping, so that the browser is in a  clean slate with no previous cookies. */
+
+    let browser; 
+    
     try {
-        // Perform an HTTP get request and dynamically apphend the page number
-        const response = await axios.get(`${gamespotTopRating + userFilter}&page=${pageNumber}`);
 
-        // Axios automatically converts the data into JSON
-        const html = response.data;
 
-        // Allows us to easily parse through the data
-        const cheerioParse = cheerio.load(html);
+      browser = await puppeteer.launch({ headless: 'new' }); // Create a new instance of browser/non-visible
+      const page = await browser.newPage(); // Loads the new browser 
+      await page.setUserAgent(userAgent); // Considered polite 
+      await page.goto(url); // Attach the new browswer instance with the url we want to scrap
+    
+   
+      // An array or promises - which are used for async operations. Its an object that tells us
+      // if the code operation is pending, succeeded, or failed. And we can build off of this. Example: 
+      // Only do this code, if the previous code in the promise has succeeded. So when the promise resolves() the data object reference gets returned 
+      const promises = [];
 
-        // Search for .card-item__link classes and grab the text and URL
-        cheerioParse('.card-item').each((index, element) => {
-            const title = cheerioParse(element).find('.card-item__link').text();
-            const url = cheerioParse(element).find('.card-item__link').attr('href');
-            const image = cheerioParse(element).find('.width-100').attr('src');
+      // We iterate 20 times, the amount of games per page 
+      for (let index = 0; index < gamesPerPage; index++) {
 
-            gameList.push({ title, url, image });
-        });
-     
+        // When page.evaluate() is called we create a new instance of our current browser to scrap 
+        // We then attach the appropriate url. It is stored in a promise. The data array is send to 
+        // the promise only if the page.evaluate() code succeeds 
+          const promise = page.evaluate((currentIndex) => {
+
+                // A nodelist of all the elements with this classname
+              const videoGames = document.querySelectorAll('.product-tile-link');
+              let data;
+              
+              // We will scrap one individual item at a time based on the index 
+              const game = videoGames[currentIndex];
+              const url = game.href; // URL to the invidiual game
+              const title = game.getAttribute('title'); // The games title
+
+              data = {url, title};// This a reference to an object holding title & url 
+
+              return data; // Return the dataList because this data is stored into the new instance 
+              // of the browser and we want to return it back to nodejs 
+
+          }, index); // <--- We are passing in index to the new browser
+
+
+          // Each promise object gets stored onto the promises array
+          promises.push(promise);
         
+          await delay(500); // This is polite to wait 1 second between each time we scrap 
 
-        // Tell us what page we are scraping from
-        console.log(`Data scraped from page ${pageNumber}`);
+          // Console log the current promise, keep this in the for loop so it displays with 1 second delay
+          promise.then((result) => {
+             console.log(result);
+          });
 
-        // ****** VERY IMPORTANT ******
-        // This ensures for one page to finish scrapping, before we advanced to the next page 
-        // Then once its done, we advance the page number and continue to the next page/calling the function over
-        if (pageNumber < numberOfPages) {
-            await delay(1000); // Introduce a 1-second delay
-            await scrapPages(pageNumber + 1);
+      } // End of for loop 
+      
+      // When all the promises are resolved (after the for loop completes) we will pass into our gameList
+      const browserScrapArray = await Promise.all(promises);
+
+      // Pass the result of each promise into our gameList
+      browserScrapArray.forEach((result) => {
+
+        gameList.push({ title: `${result.title}`, url: `${result.url}`});
+      });
+
+     // Only for testing purposes ---> console.log(gameList);
+    
+    
+     // Tell us what page we are scraping from
+    console.log(`Data scraped from page ${pageNumber}`);
+
+
+     pagePosition += 20; // Increase the position by 20, this will take us to the next page
+     pageNumber++; // Advance the page Number in the form of - (1,2,3,4,5)
+
+     if(pagePosition < pagePositionTotal){
+        await browser.close(); // Close the browser after scraping a page
+        await scrapPages(pagePosition); // Increase the page number until reach 5 pages 
+        // to get to the next page we have to add 20
+     }
+
+} // End of Try statement
+        catch (error) {
+            console.error('Error during scraping:', error);
+            throw error;
+        } 
+        finally {
+
+            if (browser) {
+            await browser.close();
+            }
         }
-    } catch (error) {
-        console.error(`Error scraping page ${pageNumber}:`, error);
-    }
-};
+}   // End of scrapPage function 
+
 
 // ***** SCRAPING RATINGS AFTER THE LIST HAS BEEN CREATED *****
-// Above we created a list of urls from the homepage, now we individually go to each link and grab the rating
-const scrapRating = async (videoGame) => {
+const scrapGameUrl = async (videoGame) => {
+
+
+    let browser; 
+
     try {
-        const response = await axios(gamespotBase + videoGame.url);
-        const html = response.data;
-        const cheerioParse = cheerio.load(html);
 
-        const rating = cheerioParse('.review-ring-score__score').text();
+        browser = await puppeteer.launch({ headless: 'new' }); // Create a new instance of browser/non-visible
+        const page = await browser.newPage(); // Loads the new browser 
+        await page.setUserAgent(userAgent); // Considered polite 
+        await page.goto(videoGame.url); // Attach the new browswer instance with the url we want to scrap
 
-        console.log(`Rating for ${videoGame.title}: ${rating} Image: ${videoGame.image}`);
+        // **************************************************
+     
+        // $eval is a shorter version of page.evaluate(). We use it because we are grabbing one type of element per page
+        // Example: In scrapPages we have an element .product-tile-link' and inside that HTML element we want to grab 
+        // the title and url not just one element. page.evaluate() is used if you need to run a loop insde of it as well 
 
-        await delay(1000); // Introduce a 1-second delay
-    } catch (error) {
-        console.error(`Error scraping rating for ${videoGame.title}:`, error);
-    }
-};
+       
+        try{
+            await page.waitForSelector('.actual-price', { timeout: 5000 });
 
-scrapPages(1)
-    .then(async () => {
-        console.log(`Number of games: ${gameList.length}`);
-        
-        // By awaiting we ensure that we scrap the games in order! 
-        for (let gameIndex = 0; gameIndex < gameList.length; ++gameIndex) {
-            await scrapRating(gameList[gameIndex]);
+            const priceLabel = await page.$eval('.actual-price', (price) => {
+                return price.innerText.trim();
+              });
+
+              console.log(priceLabel);
+              videoGame.priceLabel = priceLabel;
+
+        }
+        catch{
+            console.log(`ERROR SCRAPING COULDNT FIND PRICE`)
+            videoGame.priceLabel = 'N/A';
         }
 
-        // Listen to port which is hardcoded to 8000
-        app.listen(PORT, () => {
-            console.log(`Server is running on port: ${PORT}`);
+        try{
+
+            await page.waitForSelector('.zoomImg', { timeout: 5000 });
+
+            await page.waitForSelector('.zoomImg');
+            const imageUrl = await page.$eval('.zoomImg', (img) => {
+              return img.src;
+            });
+
+            console.log('Image URL:', imageUrl);
+            videoGame.imageUrl = imageUrl;
+    
+        }
+      catch{
+        console.log(`ERROR SCRAPING COULDNT FIND IMAGE}`)
+        videoGame.priceLabel = 'N/A';
+      }
+        
+      try{
+        await page.waitForSelector('.actual-price', { timeout: 5000 });
+        
+        const esrbValue = await page.$eval('.esrb-value', (span) => {
+          return span.innerText.trim();
         });
+
+        console.log('ESRB Value:', esrbValue);
+        videoGame.esrbValue = esrbValue;
+
+      }
+      catch{
+        console.log(`ERROR SCRAPING COULDNT FIND ESRB VALUE}`)
+        videoGame.esrbValue = 'N/A';
+      }
+
+       // **************************************************
+
+    }
+    catch (error) {
+        console.error('Error during scraping:', error);
+        throw error;
+    } finally {
+        if (browser) {
+          // Ensure that the browser is closed only after the promise is resolved
+          await browser.close();
+        }
+      }
+}  
+  
+// This is a recursive function, that will be called 5 times to load 5 pages
+// Each page has 20 games that we will scrap 
+// Scrap pages
+scrapPages(0)
+  .then(async () => {
+    console.log(`Number of games: ${gameList.length}`);
+
+
+    // Scrap individual game details
+    for (let index = 0; index <  gameList.length; ++index) {
+
+        await scrapGameUrl(gameList[index]);
+    }
+
+     // <-- For testing purposes making sure the objects have - title, url, priceList, imageUrl, and esrbValue 
+   // ********************************  iterateGameList(); ******************************** 
+     // 
+    // Start the server after scraping is completed
+    app.listen(PORT, () => {
+      console.log(`Server is running on port: ${PORT}`);
     });
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+
+  function iterateGameList(){
+    for(let index = 0; index < gameList.length; index++){
+        console.log(gameList[index]);
+    }
+  }
