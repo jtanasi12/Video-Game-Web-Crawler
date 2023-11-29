@@ -1,8 +1,15 @@
+
+
+
 $(document).ready(function () {
     // Get the genre parameter from the URL
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     const genre = urlParams.get('genre');
+
+
+
+    //document.body.style.backgroundImage = url(`Images/${backgroundImage}`);
 
     // Make an AJAX request to the server endpoint
     $.ajax({
@@ -62,5 +69,4 @@ $(document).ready(function () {
 
 function returnToMain(){
     window.location.href = `opening-page.html`;
-
 }

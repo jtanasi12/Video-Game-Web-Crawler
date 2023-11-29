@@ -70,6 +70,7 @@ body{
     margin-bottom: 1em;
     color: darkred;
 }
-.returnToMain:hover{
+.navbar-brand:hover{
     cursor: pointer;
 }
+
