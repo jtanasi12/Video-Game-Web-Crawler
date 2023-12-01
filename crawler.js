@@ -4,7 +4,6 @@ const puppeteer = require('puppeteer');
 const express = require('express');
 const fs = require('fs');
 
-
 // ************ Variable Declarations ************ 
 const baseUrl = 'https://www.gamestop.com/video-games';
 const platform = '/xbox-one';
@@ -14,7 +13,7 @@ let   pageNumber = 1; // Default to 0
 const userAgent = 'CS560 Gamestop Project'; // This is considered polite 
 const PORT = 8000;
 const gameList = []; // A list of videgame objects 
-const gamesPerPage = 20;
+const gamesPerPage = 2;
 const pagePositionTotal = 100; // The number of pages we want to traverse in GameSpot. 100 equals 5 pages with gamestops metrics
 
 // This is considered polite so that we don't get mistaken as a Denial of Service Attack

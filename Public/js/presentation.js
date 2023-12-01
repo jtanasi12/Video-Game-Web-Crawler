@@ -1,5 +1,5 @@
 
-
+let backgroundImage;
 
 $(document).ready(function () {
     // Get the genre parameter from the URL
@@ -8,8 +8,6 @@ $(document).ready(function () {
     const genre = urlParams.get('genre');
 
 
-
-    //document.body.style.backgroundImage = url(`Images/${backgroundImage}`);
 
     // Make an AJAX request to the server endpoint
     $.ajax({

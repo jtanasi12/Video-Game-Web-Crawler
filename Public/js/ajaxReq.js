@@ -3,12 +3,10 @@ function genreSelected(genre){
 
     event.preventDefault(); // Prevent page from scrolling
 
-   
-
         // Load the new window with the appropriate genre apphended into the URL 
         // We will then grab that genre and load the correct .txt file
 
-        window.location.href = `presentation-page.html?genre=${genre}&imageUrl=${imageUrl}`;
+        window.location.href = `presentation-page.html?genre=${genre}`;
 
 }
 
