@@ -27,35 +27,52 @@ $(document).ready(function () {
 
             // Loop through each item in the parsed content and create HTML elements
             response.content.forEach(item => {
-                const resultItem = $('<div class="card m-3 p-3 text-center shadow-rounded d-flex align-items-center"></div>');
+                $('#results').append(`
+    <div class="card mb-3">
+        <div class="row g-0 align-items-center">
+            <div class="col-sm-4">
+                <img src="${item.imageUrl}" alt="event_img" class="card-img rounded p-1 img-fluid" id="event-img">
+            </div>
+            <div class="col-sm-8">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <h3 class="card-title display-4" id="event-title">
+                             ${item.title}
+                            </h3>
+                        </div>
+                        <div class="col-sm-4">
+                            <small class="fs-4 text-success fw-bold" id="date">
+                                Price
+                            </small><br>
+                            <small class="fw-light fs-6 text-success" id="time">
+                                ${item.priceLabel}
+                            </small>
+                        </div>
 
-                // Create an image element
-                const imageElement = $('<img class="d-block img-fluid mx-auto mb-3">');
-                imageElement.attr('src', item.imageUrl);
-                imageElement.css('max-width', '500px'); // Set max-width to 500 pixels
-                imageElement.css('max-height', '500px'); // Set max-height to 500 pixels
-                resultItem.append(imageElement);
+                       
+                        <p class="card-text text-muted " id="address">ESRB RATING<br>${item.esrbValue}</p>
+                        <div>
+                            <div>
+                                <div class="col-4-sm">
+                                     <a class="btn btn-primary" href="${item.url}"  id="event-url" role="button" target="_blank">Get the Game</a>
+                                </div>
+                            </div>
+                        </div>
 
-                // Create a div for text information
-                const textDiv = $('<div class="ms-3 text-start"></div>');
 
-                const titleElement = $('<h5 class="fs-1"></h5>');
-                titleElement.text(item.title);
-                textDiv.append(titleElement);
+                    </div>
+                </div>
 
-                const priceElement = $('<p class="fs-3"></p>');
-                priceElement.text(`Price: ${item.priceLabel}`);
-                textDiv.append(priceElement);
+            </div>
 
-                const esrbElement = $('<p class="fs-3"></p>');
-                esrbElement.text(`ESRB: ${item.esrbValue}`);
-                textDiv.append(esrbElement);
 
-                // Append the text div to the result item
-                resultItem.append(textDiv);
+        </div>
 
-                // Append the result item to the container
-                resultsContainer.append(resultItem);
+
+    </div>
+`);
+
             });
         },
         error: function (xhr, status, error) {
